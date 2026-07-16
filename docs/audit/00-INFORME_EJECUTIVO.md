@@ -73,8 +73,8 @@ Severidad: 🔴 Bloqueante · 🟠 Importante · 🟢 Deseable. "Dep." = depende
 | 8 | **Reforzar aislamiento**: añadir columna/filtro de agencia a `AccountPayment` y a las queries por `createdById` de `SaleRepository`; considerar filtro declarativo (Hibernate `@Filter`) o RLS de Postgres | backend/DB | 🟠 | 7 |
 | 9 | **Introducir migraciones** (Flyway/Liquibase) y quitar `ddl-auto=update` de prod | backend/DB | 🟠 | 1 |
 | 10 | ~~**Rate limiting** en login / forgot-password / refresh~~ ✅ **Hecho en Bloque 0** (`RateLimitingFilter`, 10 req/60s por IP; commit `e5751c4`). | seguridad | ✅ | — |
-| 11 | **Eliminar código/entidades/endpoints muertos** (`TeamInvitation`+`InvitationStatus`, marcadores vacíos, `/team/invite`, métodos huérfanos, decidir sobre `/theme`) | backend | 🟢 | — |
-| 12 | **Resolver N+1** (crítico en `AccountStatementServiceImpl.getStatement:165`; LAZY en `getAll` de ventas/reservas) | backend | 🟠 | — |
+| 11 | **Eliminar código/entidades/endpoints muertos** — 🟡 **Parcial (Bloque 1, commit `885b1b4`)**: eliminados `TeamInvitation`+`InvitationStatus`+mapping, marcadores vacíos y métodos huérfanos de repos/servicio. **Pendiente:** endpoint `/team/invite` + `inviteMember`/`acceptInvite` (entrelazados con el flujo de invitación — requieren cross-check), y decisión sobre `/theme`. | backend | 🟡 | — |
+| 12 | **Resolver N+1** — 🟡 **Parcial (Bloque 1, commit `885b1b4`)**: fetch-join de asociaciones LAZY en el estado de cuenta (payments/createdBy/customer/agency). **Pendiente:** batch de la query de bookings por venta en `getStatement` (cambia la forma de la query de comisiones → **hacer con test de caracterización primero**); LAZY en `getAll` de ventas/reservas. | backend | 🟡 | 15 |
 | 13 | **Normalización visual**: unificar color de acento (hoy cyan/violet/emerald según pantalla), rojo de error (3 tonos), radios/espaciados; adoptar los tokens `brand-*` de Tailwind (hoy 0 usos); completar estados (hover/focus/disabled/loading) y responsive (8/19 plantillas sin breakpoints) | frontend | 🟠 | — |
 | 14 | **Completar pantallas placeholder** (`commission-account`) y limpiar ruta muerta | frontend | 🟢 | — |
 | 15 | **Tests de negocio y de aislamiento** (backend) + configurar runner y tests de guards/interceptor (frontend); Testcontainers para integración real | testing | 🟠 | 8 |
@@ -146,7 +146,12 @@ Objetivo: hacer el MVP **desplegable y honesto**. Completados los ítems bien ac
 - **`@ExceptionHandler`** (backend `dev`, commit `d70654e`): `InvalidRequestException`→400, `ForbiddenOperationException`→403 (antes 500).
 - **Verificación:** backend `mvn test` EXIT 0 (6 tests verdes); frontend `ng build --prod` EXIT 0 (output en `dist/traveldesk/browser`). Sin push.
 
-**Pendiente del Bloque 1** (mayor riesgo, se hará con verificación dedicada):
-- Resolver N+1 (crítico en `AccountStatementServiceImpl.getStatement:165`; LAZY en `getAll` de ventas/reservas).
-- Limpiar código/endpoints muertos (`TeamInvitation`, `/team/invite`, métodos huérfanos, decisión sobre `/theme`).
+**También ejecutado en Bloque 1** (backend `dev`, commit `885b1b4`; compila + 6 tests verdes):
+- **N+1 (parcial):** fetch-join `DISTINCT` de las asociaciones LAZY del estado de cuenta (payments/createdBy/customer/agency), eliminando ~4 queries por venta. Cambio behavior-preserving.
+- **Código muerto (verificado):** eliminados `TeamInvitation` + `InvitationStatus` + `Agency.invitations`, dos clases marcador vacías, `AccountPaymentRepository.findByUserId`, `SaleRepository.findByCreatedById` (también sin filtro de agencia), y el privado `SalesServiceImpl.getSupplierOrNull` con su dependencia `SupplierRepository`.
+- **Corrección al informe FASE 1:** `SupplierMapper.toEntity` NO era huérfano (se usa en `SupplierServiceImpl:61`); no se tocó.
+
+**Pendiente del Bloque 1** (mayor riesgo — requiere test primero):
+- Batch de la query de bookings por venta en `getStatement` (toca el cálculo de comisiones → **test de caracterización antes de refactorizar**).
+- Endpoint muerto `/team/invite` + `inviteMember`/`acceptInvite` (entrelazados con el flujo de invitación) y decisión sobre `/theme`.
 - El **deploy real** (crear proyectos en Railway/Vercel y fijar variables) es una acción en tus cuentas — no la ejecuto yo.
