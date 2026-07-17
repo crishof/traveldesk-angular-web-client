@@ -73,8 +73,8 @@ Severidad: 🔴 Bloqueante · 🟠 Importante · 🟢 Deseable. "Dep." = depende
 | 8 | **Reforzar aislamiento**: añadir columna/filtro de agencia a `AccountPayment` y a las queries por `createdById` de `SaleRepository`; considerar filtro declarativo (Hibernate `@Filter`) o RLS de Postgres | backend/DB | 🟠 | 7 |
 | 9 | **Introducir migraciones** (Flyway/Liquibase) y quitar `ddl-auto=update` de prod | backend/DB | 🟠 | 1 |
 | 10 | ~~**Rate limiting** en login / forgot-password / refresh~~ ✅ **Hecho en Bloque 0** (`RateLimitingFilter`, 10 req/60s por IP; commit `e5751c4`). | seguridad | ✅ | — |
-| 11 | **Eliminar código/entidades/endpoints muertos** — 🟡 **Parcial (Bloque 1, commit `885b1b4`)**: eliminados `TeamInvitation`+`InvitationStatus`+mapping, marcadores vacíos y métodos huérfanos de repos/servicio. **Pendiente:** endpoint `/team/invite` + `inviteMember`/`acceptInvite` (entrelazados con el flujo de invitación — requieren cross-check), y decisión sobre `/theme`. | backend | 🟡 | — |
-| 12 | **Resolver N+1** — 🟡 **Parcial (Bloque 1, commit `885b1b4`)**: fetch-join de asociaciones LAZY en el estado de cuenta (payments/createdBy/customer/agency). **Pendiente:** batch de la query de bookings por venta en `getStatement` (cambia la forma de la query de comisiones → **hacer con test de caracterización primero**); LAZY en `getAll` de ventas/reservas. | backend | 🟡 | 15 |
+| 11 | **Eliminar código/entidades/endpoints muertos** — 🟢 **Hecho** (commits `885b1b4`, `793e7f0`): `TeamInvitation`+`InvitationStatus`+mapping, marcadores vacíos, métodos huérfanos de repos/servicio, **y el endpoint muerto `/team/invite` + `inviteMember`/`acceptInvite` + DTO huérfano** (trazado el flujo de invitación antes de borrar). **Pendiente menor:** decidir sobre `/theme` (stub no-op). | backend | 🟢 | — |
+| 12 | **Resolver N+1** — 🟢 **Hecho en el estado de cuenta** (commits `885b1b4`, `5ecacdf`): fetch-join de asociaciones LAZY **y** batch de la query de bookings por venta (1 query en vez de N), respaldado por un **test de caracterización** (`AccountStatementServiceImplTests`). **Pendiente menor:** LAZY en `getAll` de ventas/reservas (endpoints de listado, menor impacto). | backend | 🟢 | — |
 | 13 | **Normalización visual**: unificar color de acento (hoy cyan/violet/emerald según pantalla), rojo de error (3 tonos), radios/espaciados; adoptar los tokens `brand-*` de Tailwind (hoy 0 usos); completar estados (hover/focus/disabled/loading) y responsive (8/19 plantillas sin breakpoints) | frontend | 🟠 | — |
 | 14 | **Completar pantallas placeholder** (`commission-account`) y limpiar ruta muerta | frontend | 🟢 | — |
 | 15 | **Tests de negocio y de aislamiento** (backend) + configurar runner y tests de guards/interceptor (frontend); Testcontainers para integración real | testing | 🟠 | 8 |
@@ -151,7 +151,17 @@ Objetivo: hacer el MVP **desplegable y honesto**. Completados los ítems bien ac
 - **Código muerto (verificado):** eliminados `TeamInvitation` + `InvitationStatus` + `Agency.invitations`, dos clases marcador vacías, `AccountPaymentRepository.findByUserId`, `SaleRepository.findByCreatedById` (también sin filtro de agencia), y el privado `SalesServiceImpl.getSupplierOrNull` con su dependencia `SupplierRepository`.
 - **Corrección al informe FASE 1:** `SupplierMapper.toEntity` NO era huérfano (se usa en `SupplierServiceImpl:61`); no se tocó.
 
-**Pendiente del Bloque 1** (mayor riesgo — requiere test primero):
-- Batch de la query de bookings por venta en `getStatement` (toca el cálculo de comisiones → **test de caracterización antes de refactorizar**).
-- Endpoint muerto `/team/invite` + `inviteMember`/`acceptInvite` (entrelazados con el flujo de invitación) y decisión sobre `/theme`.
+**Cerrado después (steps 1 y 2, backend `develop`→`main`):**
+- **Step 1 — N+1 de bookings batcheado** (commit `5ecacdf`): 1 query en vez de N por venta, con **test de caracterización** (`AccountStatementServiceImplTests`) escrito y verde antes y después del refactor.
+- **Step 2 — `/team/invite` eliminado** (commit `793e7f0`): endpoint y métodos stub muertos, tras trazar el flujo real de invitación.
+
+**Pendiente del Bloque 1:**
+- LAZY en `getAll` de ventas/reservas (menor impacto) y decisión sobre `/theme`.
 - El **deploy real** (crear proyectos en Railway/Vercel y fijar variables) es una acción en tus cuentas — no la ejecuto yo.
+
+## 9. Estado de git (2026-07-17)
+
+Ambos repos: trabajo en `develop` local, releases mergeadas a `main` con `--no-ff` y **pusheadas**.
+- **Backend** (`traveldesk-springboot-api`, antes `traveldesk-api`): `origin/main` = `6bbde81`. Contiene Bloque 0 + Bloque 1 (steps 1-2).
+- **Frontend/docs** (`traveldesk-angular-web-client`, antes `TravelAgent`): `origin/main` con `vercel.json`, `agency-settings` real y los informes de auditoría.
+- Ambos repos fueron **renombrados en GitHub**; los remotos locales aún apuntan a la URL antigua (funciona por redirección; conviene `git remote set-url`).
