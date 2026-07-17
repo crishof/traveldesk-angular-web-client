@@ -69,9 +69,9 @@ Severidad: 🔴 Bloqueante · 🟠 Importante · 🟢 Deseable. "Dep." = depende
 | 4 | ~~**Arreglar el guardado de `agency-settings`**~~ ✅ **Hecho en Bloque 1** (carga vía GET y persiste vía PUT `/account/agency`; commit `018f2766`). | frontend | ✅ | — |
 | 5 | ~~**Registrar `@ExceptionHandler`**~~ ✅ **Hecho en Bloque 1** (`InvalidRequestException`→400, `ForbiddenOperationException`→403; commit `d70654e`). | backend | ✅ | — |
 | 6 | ~~**Cerrar CORS de producción**~~ ✅ **Hecho en Bloque 0** (comodín eliminado; commit `e5751c4`). Al desplegar, fijar `CORS_ALLOWED_ORIGINS` al dominio Vercel exacto. | seguridad | ✅ | 3 |
-| 7 | **Decidir `agency_id` vs `tenant_id`** (1:1 vs holding con N agencias) — decisión de **negocio**, condiciona el modelo | arquitectura | 🟠 | — |
-| 8 | **Reforzar aislamiento**: añadir columna/filtro de agencia a `AccountPayment` y a las queries por `createdById` de `SaleRepository`; considerar filtro declarativo (Hibernate `@Filter`) o RLS de Postgres | backend/DB | 🟠 | 7 |
-| 9 | **Introducir migraciones** (Flyway/Liquibase) y quitar `ddl-auto=update` de prod | backend/DB | 🟠 | 1 |
+| 7 | **Decidir `agency_id` vs `tenant_id`** — ✅ **DECIDIDO (2026-07-17): 1:1 (una agencia = un tenant)**. No se crea entidad `Tenant`; el trabajo es reforzar el aislamiento por agencia. | arquitectura | ✅ | — |
+| 8 | **Reforzar aislamiento**: añadir columna/filtro de agencia a `AccountPayment`; considerar filtro declarativo (Hibernate `@Filter`) o RLS de Postgres | backend/DB | 🟠 | 9 |
+| 9 | ~~**Introducir migraciones** (Flyway) y quitar `ddl-auto=update`~~ ✅ **Hecho (Bloque 2, commit `965dda5`)**: Flyway + `V1__baseline.sql`, `ddl-auto=validate` en dev/prod, baseline-on-migrate para deploys existentes. Verificado contra Postgres real. | backend/DB | ✅ | — |
 | 10 | ~~**Rate limiting** en login / forgot-password / refresh~~ ✅ **Hecho en Bloque 0** (`RateLimitingFilter`, 10 req/60s por IP; commit `e5751c4`). | seguridad | ✅ | — |
 | 11 | **Eliminar código/entidades/endpoints muertos** — 🟢 **Hecho** (commits `885b1b4`, `793e7f0`): `TeamInvitation`+`InvitationStatus`+mapping, marcadores vacíos, métodos huérfanos de repos/servicio, **y el endpoint muerto `/team/invite` + `inviteMember`/`acceptInvite` + DTO huérfano** (trazado el flujo de invitación antes de borrar). **Pendiente menor:** decidir sobre `/theme` (stub no-op). | backend | 🟢 | — |
 | 12 | **Resolver N+1** — 🟢 **Hecho en el estado de cuenta** (commits `885b1b4`, `5ecacdf`): fetch-join de asociaciones LAZY **y** batch de la query de bookings por venta (1 query en vez de N), respaldado por un **test de caracterización** (`AccountStatementServiceImplTests`). **Pendiente menor:** LAZY en `getAll` de ventas/reservas (endpoints de listado, menor impacto). | backend | 🟢 | — |
@@ -165,3 +165,13 @@ Ambos repos: trabajo en `develop` local, releases mergeadas a `main` con `--no-f
 - **Backend** (`traveldesk-springboot-api`, antes `traveldesk-api`): `origin/main` = `6bbde81`. Contiene Bloque 0 + Bloque 1 (steps 1-2).
 - **Frontend/docs** (`traveldesk-angular-web-client`, antes `TravelAgent`): `origin/main` con `vercel.json`, `agency-settings` real y los informes de auditoría.
 - Ambos repos fueron **renombrados en GitHub**; los remotos locales aún apuntan a la URL antigua (funciona por redirección; conviene `git remote set-url`).
+
+## 10. Estado del Bloque 2 — Cimiento multi-tenant (en curso)
+
+- **Decisión de tenancy:** `tenant_id = agency_id` (1:1). No hay entidad `Tenant`; se refuerza el aislamiento por agencia existente.
+- **Migraciones (Flyway):** ✅ **hecho y verificado** (commit `965dda5`, en `main`). Ver ítem 9. Verificado end-to-end contra un Postgres 16 real: BBDD nueva (V1 crea el esquema + `validate` OK), BBDD existente (baseline sin re-ejecutar V1), y suite H2 en verde con Flyway deshabilitado.
+- **Pendiente del Bloque 2:**
+  - **Reforzar aislamiento de `AccountPayment`** (añadir `agency_id` vía migración V2 + entidad + set en creación; ítem 8). Es el siguiente paso natural, ya desbloqueado por Flyway.
+  - Evaluar filtro declarativo (Hibernate `@Filter`) o **RLS de Postgres** para garantizar el aislamiento a nivel de datos (hoy 100% capa de aplicación).
+  - **Tests de aislamiento** (usuario de agencia A no ve datos de B) sobre esta base.
+- **Nota de entorno:** durante la verificación se levantó el Postgres de Docker Compose (`traveldesk-db` en `localhost:5467`); queda corriendo para desarrollo local.
