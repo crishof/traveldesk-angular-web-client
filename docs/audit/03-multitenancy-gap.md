@@ -133,10 +133,20 @@ Para contraste, todos los accesos de lectura/escritura del flujo principal sí f
 - **Migraciones:** Flyway introducido con baseline `V1` (commit `965dda5`); `ddl-auto=validate` en dev/prod. El gap de "sin migraciones" queda cerrado.
 - **`AccountPayment` con `agency_id`** (migración `V2`, commit `02ada02`): la tabla financiera `account_payments` ya lleva su frontera de tenant explícita, poblada desde la agencia del usuario al crear el cobro, `NOT NULL` + FK. Cierra la debilidad Alta #1. Añadido test de aislamiento (`statementIsIsolatedPerUserAndAgency`).
 
-**Evaluación de RLS de Postgres (recomendación, no implementado aún):**
-- **Beneficio:** enforcement a nivel de BD — aunque una query de repositorio olvide el `WHERE agency_id = ?`, la fila de otra agencia no se devuelve. Es la única red de seguridad real bajo JPA y muy recomendable para un SaaS que maneja dinero y (futuro) facturación fiscal.
-- **Coste/complejidad:** requiere (1) `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` + `CREATE POLICY` por cada tabla con `agency_id` (vía migración Flyway); (2) fijar el tenant actual por transacción con un GUC (`SET LOCAL app.current_agency = :agencyId`) desde un punto único (p. ej. un interceptor/aspecto que lo setee al iniciar la transacción de cada request); (3) cuidado con HikariCP (usar `SET LOCAL` dentro de la transacción, no `SET` a nivel de conexión, por el pooling); (4) rol de aplicación **sin** `BYPASSRLS`, y contemplar migraciones/tareas que sí necesiten saltarla.
-- **Recomendación:** abordarlo como una unidad dedicada y bien testeada (tabla por tabla, con tests de aislamiento por cada entidad), **después** de completar el `agency_id` en las tablas que aún lo necesiten evaluar (p. ej. `Payment`, que hoy se aísla indirectamente vía `Sale`). Mientras tanto, el aislamiento por capa de aplicación con `agency_id`/`createdById` derivados del principal (0 endpoints inseguros, §4) es adecuado para el estado actual sin clientes reales.
+**RLS de Postgres — IMPLEMENTADO E INACTIVO (commit `b4f9af2`), verificado contra Postgres real:**
+- **Migración `V4`:** rol `traveldesk_app` (LOGIN, sin `SUPERUSER`/`BYPASSRLS`) + `ENABLE`/`FORCE ROW LEVEL SECURITY` y política `agency_isolation` en las 6 tablas con `agency_id` (customers, suppliers, sales, bookings, account_payments, tbl_payments). La política usa `NULLIF(current_setting('app.current_agency', true), '')::uuid` → si no hay tenant fijado, 0 filas (fail-closed, sin error de cast).
+- **`TenantGucAspect` + `RlsTransactionConfig`:** fijan `app.current_agency` con `set_config(..., is_local => true)` al inicio de cada transacción desde la agencia del principal. Ordenado para ejecutarse **dentro** de la transacción. Gated por `app.security.rls.enabled` (default **false**).
+- **`SUPPORTS` → `REQUIRED`** en los métodos de lectura de los servicios afectados: `SET LOCAL` necesita el GUC en la misma transacción que la query; las lecturas no transaccionales devolvían 0 filas. Descubierto y corregido con un smoke test end-to-end (login → crear cliente → listar).
+- **Verificación:** como `traveldesk_app` las lecturas/escrituras quedan acotadas por agencia (WITH CHECK bloquea insertar en otra agencia; sin tenant → 0 filas; superusuario ve todo). Un run HTTP real devolvió solo los datos de la agencia del llamante. Suite H2 en verde con RLS inactivo.
+
+**Checklist de ACTIVACIÓN (cuando se decida activar RLS):**
+1. Definir contraseña del rol: `ALTER ROLE traveldesk_app WITH PASSWORD '...';` (en dev/prod/Railway).
+2. Apuntar el datasource de la app a `traveldesk_app` (`SPRING_DATASOURCE_USERNAME/PASSWORD` en Railway; `POSTGRES_DEV_*` en local).
+3. Mantener **Flyway con un usuario admin** (`spring.flyway.user`/`spring.flyway.password` = postgres), porque `traveldesk_app` no tiene privilegios DDL.
+4. `RLS_ENABLED=true`.
+5. Verificar aislamiento por entidad (test A vs B) tras activar.
+
+Mientras tanto, el aislamiento por capa de aplicación con `agency_id`/`createdById` derivados del principal (0 endpoints inseguros, §4) es adecuado para el estado actual sin clientes reales; RLS queda como red de seguridad lista para activar.
 
 ---
 
