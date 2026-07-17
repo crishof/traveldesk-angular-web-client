@@ -127,6 +127,19 @@ Para contraste, todos los accesos de lectura/escritura del flujo principal sí f
 
 ---
 
+## 6.b Progreso (2026-07-17) y evaluación de RLS
+
+**Hecho (Bloque 2):**
+- **Migraciones:** Flyway introducido con baseline `V1` (commit `965dda5`); `ddl-auto=validate` en dev/prod. El gap de "sin migraciones" queda cerrado.
+- **`AccountPayment` con `agency_id`** (migración `V2`, commit `02ada02`): la tabla financiera `account_payments` ya lleva su frontera de tenant explícita, poblada desde la agencia del usuario al crear el cobro, `NOT NULL` + FK. Cierra la debilidad Alta #1. Añadido test de aislamiento (`statementIsIsolatedPerUserAndAgency`).
+
+**Evaluación de RLS de Postgres (recomendación, no implementado aún):**
+- **Beneficio:** enforcement a nivel de BD — aunque una query de repositorio olvide el `WHERE agency_id = ?`, la fila de otra agencia no se devuelve. Es la única red de seguridad real bajo JPA y muy recomendable para un SaaS que maneja dinero y (futuro) facturación fiscal.
+- **Coste/complejidad:** requiere (1) `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` + `CREATE POLICY` por cada tabla con `agency_id` (vía migración Flyway); (2) fijar el tenant actual por transacción con un GUC (`SET LOCAL app.current_agency = :agencyId`) desde un punto único (p. ej. un interceptor/aspecto que lo setee al iniciar la transacción de cada request); (3) cuidado con HikariCP (usar `SET LOCAL` dentro de la transacción, no `SET` a nivel de conexión, por el pooling); (4) rol de aplicación **sin** `BYPASSRLS`, y contemplar migraciones/tareas que sí necesiten saltarla.
+- **Recomendación:** abordarlo como una unidad dedicada y bien testeada (tabla por tabla, con tests de aislamiento por cada entidad), **después** de completar el `agency_id` en las tablas que aún lo necesiten evaluar (p. ej. `Payment`, que hoy se aísla indirectamente vía `Sale`). Mientras tanto, el aislamiento por capa de aplicación con `agency_id`/`createdById` derivados del principal (0 endpoints inseguros, §4) es adecuado para el estado actual sin clientes reales.
+
+---
+
 ## 7. Notas de método
 
 - Verificación por lectura directa de: 7 entidades de negocio (`User`, `Customer`, `Supplier`, `Sale`, `Booking`, `Payment`, `AccountPayment`) + `Agency`; los 12 repositorios; 5 service impls clave (`Sales`, `AccountStatement`, `Account`, `Dashboard`, `Team`) + extractos de `AuthServiceImpl`; los 12 controladores; `SecurityConfig`, `JwtService`, `JwtFilter`, `SecurityUser`, `SecurityUserDetailsService`; y `application*.properties`.
