@@ -70,7 +70,7 @@ Severidad: 🔴 Bloqueante · 🟠 Importante · 🟢 Deseable. "Dep." = depende
 | 5 | ~~**Registrar `@ExceptionHandler`**~~ ✅ **Hecho en Bloque 1** (`InvalidRequestException`→400, `ForbiddenOperationException`→403; commit `d70654e`). | backend | ✅ | — |
 | 6 | ~~**Cerrar CORS de producción**~~ ✅ **Hecho en Bloque 0** (comodín eliminado; commit `e5751c4`). Al desplegar, fijar `CORS_ALLOWED_ORIGINS` al dominio Vercel exacto. | seguridad | ✅ | 3 |
 | 7 | **Decidir `agency_id` vs `tenant_id`** — ✅ **DECIDIDO (2026-07-17): 1:1 (una agencia = un tenant)**. No se crea entidad `Tenant`; el trabajo es reforzar el aislamiento por agencia. | arquitectura | ✅ | — |
-| 8 | **Reforzar aislamiento**: añadir columna/filtro de agencia a `AccountPayment`; considerar filtro declarativo (Hibernate `@Filter`) o RLS de Postgres | backend/DB | 🟠 | 9 |
+| 8 | **Reforzar aislamiento** — 🟡 **Parcial (Bloque 2, commit `02ada02`)**: `AccountPayment` ya lleva `agency_id` (migración V2, NOT NULL+FK) + test de aislamiento. RLS de Postgres **evaluado y recomendado** como unidad dedicada (ver informe 03 §6.b). **Pendiente:** RLS/`@Filter` y `agency_id` en `Payment`. | backend/DB | 🟡 | — |
 | 9 | ~~**Introducir migraciones** (Flyway) y quitar `ddl-auto=update`~~ ✅ **Hecho (Bloque 2, commit `965dda5`)**: Flyway + `V1__baseline.sql`, `ddl-auto=validate` en dev/prod, baseline-on-migrate para deploys existentes. Verificado contra Postgres real. | backend/DB | ✅ | — |
 | 10 | ~~**Rate limiting** en login / forgot-password / refresh~~ ✅ **Hecho en Bloque 0** (`RateLimitingFilter`, 10 req/60s por IP; commit `e5751c4`). | seguridad | ✅ | — |
 | 11 | **Eliminar código/entidades/endpoints muertos** — 🟢 **Hecho** (commits `885b1b4`, `793e7f0`): `TeamInvitation`+`InvitationStatus`+mapping, marcadores vacíos, métodos huérfanos de repos/servicio, **y el endpoint muerto `/team/invite` + `inviteMember`/`acceptInvite` + DTO huérfano** (trazado el flujo de invitación antes de borrar). **Pendiente menor:** decidir sobre `/theme` (stub no-op). | backend | 🟢 | — |
@@ -170,8 +170,7 @@ Ambos repos: trabajo en `develop` local, releases mergeadas a `main` con `--no-f
 
 - **Decisión de tenancy:** `tenant_id = agency_id` (1:1). No hay entidad `Tenant`; se refuerza el aislamiento por agencia existente.
 - **Migraciones (Flyway):** ✅ **hecho y verificado** (commit `965dda5`, en `main`). Ver ítem 9. Verificado end-to-end contra un Postgres 16 real: BBDD nueva (V1 crea el esquema + `validate` OK), BBDD existente (baseline sin re-ejecutar V1), y suite H2 en verde con Flyway deshabilitado.
-- **Pendiente del Bloque 2:**
-  - **Reforzar aislamiento de `AccountPayment`** (añadir `agency_id` vía migración V2 + entidad + set en creación; ítem 8). Es el siguiente paso natural, ya desbloqueado por Flyway.
-  - Evaluar filtro declarativo (Hibernate `@Filter`) o **RLS de Postgres** para garantizar el aislamiento a nivel de datos (hoy 100% capa de aplicación).
-  - **Tests de aislamiento** (usuario de agencia A no ve datos de B) sobre esta base.
+- **Aislamiento de `AccountPayment`:** ✅ **hecho y verificado** (migración `V2`, commit `02ada02`): `agency_id` NOT NULL+FK, poblado desde la agencia del usuario, con **test de aislamiento** A vs B. Verificado contra Postgres (V1+V2 + `validate`) y H2 (suite verde).
+- **RLS de Postgres:** **evaluado y recomendado** como unidad dedicada (informe 03 §6.b) — no implementado aún.
+- **Pendiente del Bloque 2:** RLS/`@Filter` declarativo, y `agency_id` en `Payment` (hoy aislado indirectamente vía `Sale`).
 - **Nota de entorno:** durante la verificación se levantó el Postgres de Docker Compose (`traveldesk-db` en `localhost:5467`); queda corriendo para desarrollo local.
