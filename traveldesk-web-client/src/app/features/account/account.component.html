@@ -18,7 +18,7 @@
       class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl"
       [class]="
         user()!.role === 'ADMIN'
-          ? 'bg-gradient-to-br from-violet-500 to-purple-600'
+          ? 'bg-gradient-to-br from-brand-500 to-brand-600'
           : 'bg-gradient-to-br from-cyan-500 to-teal-600'
       "
     >
@@ -41,7 +41,7 @@
         class="text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block"
         [class]="
           user()!.role === 'ADMIN'
-            ? 'bg-violet-500/10 text-violet-500'
+            ? 'bg-brand-500/10 text-brand-500'
             : 'bg-cyan-500/10 text-cyan-500'
         "
       >
@@ -52,7 +52,7 @@
         [class]="
           user()!.status === 'ACTIVE'
             ? 'bg-emerald-500/10 text-emerald-500'
-            : 'bg-amber-500/10 text-amber-500'
+            : 'bg-warning-500/10 text-warning-500'
         "
       >
         {{ user()!.status }}

@@ -58,11 +58,11 @@ import { ExchangeRateService } from "../../core/services/exchange-rate.service";
           1 {{ fromCurrency() }} = {{ pairRateDisplay() }} {{ toCurrency() }}
         </span>
         @if (xr.isManual()) {
-          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 font-semibold">Manual</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-warning-500/15 text-warning-500 font-semibold">Manual</span>
           <button
             type="button"
             (click)="clearManualRate()"
-            class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-red-500 dark:text-slate-400 transition-colors"
+            class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-danger-500 dark:text-slate-400 transition-colors"
           >
             Reset
           </button>

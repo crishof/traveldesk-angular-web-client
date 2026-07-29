@@ -47,7 +47,7 @@
       </div>
       <button
         (click)="theme.toggle()"
-        class="p-2 rounded-xl transition-colors bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-amber-400"
+        class="p-2 rounded-xl transition-colors bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-warning-400"
       >
         @if (theme.isDark()) {
           <svg
@@ -103,7 +103,7 @@
             [class.ring-2]="
               form.get('email')?.invalid && form.get('email')?.touched
             "
-            [class.ring-red-400]="
+            [class.ring-danger-400]="
               form.get('email')?.invalid && form.get('email')?.touched
             "
           />
@@ -132,8 +132,8 @@
       </div>
 
       @if (error()) {
-        <div class="text-xs bg-red-400/10 px-3 py-2 rounded-lg space-y-2">
-          <p class="text-red-400">{{ error() }}</p>
+        <div class="text-xs bg-danger-400/10 px-3 py-2 rounded-lg space-y-2">
+          <p class="text-danger-400">{{ error() }}</p>
           @if (showResend()) {
             <button
               type="button"

@@ -48,7 +48,7 @@
           @if (loading()) {
             <p class="text-sm text-slate-400">Cargando movimientos...</p>
           } @else if (error()) {
-            <p class="text-sm text-red-500">{{ error() }}</p>
+            <p class="text-sm text-danger-500">{{ error() }}</p>
           } @else {
             @for (movement of statementFor(currency)?.movements ?? []; track trackMovement($index, movement)) {
               <div
@@ -64,7 +64,7 @@
                 </div>
                 <div
                   class="text-sm font-bold"
-                  [class]="movement.amount >= 0 ? 'text-emerald-600' : 'text-red-500'"
+                  [class]="movement.amount >= 0 ? 'text-emerald-600' : 'text-danger-500'"
                 >
                   {{ formatAmount(movement.amount, movement.currency) }}
                 </div>
@@ -80,7 +80,7 @@
                     <button
                       type="button"
                       (click)="openDeletePaymentDialog(movement)"
-                      class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                      class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-danger-500/10 text-danger-500 hover:bg-danger-500/20"
                     >
                       Eliminar
                     </button>
@@ -197,7 +197,7 @@
     >
       <div class="flex flex-col gap-4">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-red-500">
+          <p class="text-xs font-semibold uppercase tracking-wider text-danger-500">
             Eliminar pago
           </p>
           <h2 class="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
@@ -221,7 +221,7 @@
             type="button"
             (click)="confirmDeletePayment()"
             [disabled]="deletingPayment()"
-            class="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 rounded-lg text-sm font-semibold bg-danger-600 text-white hover:bg-danger-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ deletingPayment() ? "Eliminando..." : "Eliminar pago" }}
           </button>

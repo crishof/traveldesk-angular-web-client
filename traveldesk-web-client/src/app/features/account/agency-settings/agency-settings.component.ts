@@ -29,7 +29,7 @@ import { AgencySettingsResponse } from "../../../core/models";
 
         @if (loadError()) {
           <div
-            class="mb-4 rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300"
+            class="mb-4 rounded-lg border border-danger-300 bg-danger-50 dark:bg-danger-900/20 dark:border-danger-800 px-4 py-3 text-sm text-danger-700 dark:text-danger-300"
           >
             No se pudo cargar la configuración de la agencia. Recarga la página e inténtalo de nuevo.
           </div>
@@ -58,7 +58,7 @@ import { AgencySettingsResponse } from "../../../core/models";
           </div>
 
           @if (saveError()) {
-            <p class="text-sm text-red-700 dark:text-red-300">{{ saveError() }}</p>
+            <p class="text-sm text-danger-700 dark:text-danger-300">{{ saveError() }}</p>
           }
           @if (saved()) {
             <p class="text-sm text-emerald-700 dark:text-emerald-400">
