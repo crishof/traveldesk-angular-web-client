@@ -34,14 +34,43 @@
 
   /* Range input */
   input[type='range'] {
-    @apply accent-cyan-500;
+    @apply accent-brand-500;
+  }
+
+  /* Accesibilidad: anillo de foco visible por teclado en cualquier elemento interactivo */
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible,
+  summary:focus-visible {
+    @apply outline-none ring-2 ring-brand-500/50 rounded-lg;
   }
 }
 
 @layer components {
   /* Reusable gradient text */
   .gradient-text {
-    @apply bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand-500 to-brand-600 bg-clip-text text-transparent;
+  }
+
+  /* ── Botones (estados: hover / focus-visible / disabled / loading) ───────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
+           transition-all outline-none
+           focus-visible:ring-2 focus-visible:ring-brand-500/50
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply text-white bg-gradient-to-r from-brand-500 to-brand-600 shadow-lg shadow-brand-500/20 hover:opacity-90;
+  }
+  .btn-secondary {
+    @apply border border-slate-300 text-slate-700 hover:bg-slate-50
+           dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700;
+  }
+  .btn-danger {
+    @apply text-white bg-danger-600 hover:bg-danger-500;
+  }
+  .btn-ghost {
+    @apply text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800;
   }
 
   /* Card base */
@@ -58,7 +87,8 @@
   /* Form input base — used in Angular reactive forms */
   .form-input {
     @apply w-full px-3 py-2.5 rounded-xl text-sm border outline-none transition-all
-           focus:ring-2 focus:ring-cyan-500/40;
+           focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40
+           disabled:opacity-60 disabled:cursor-not-allowed;
   }
   .form-input.ng-invalid.ng-touched:not(:disabled) {
     @apply border-danger-500 ring-2 ring-danger-500/20;
