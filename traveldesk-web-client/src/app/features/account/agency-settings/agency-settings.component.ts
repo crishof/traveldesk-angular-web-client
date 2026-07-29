@@ -61,7 +61,7 @@ import { AgencySettingsResponse } from "../../../core/models";
             <p class="text-sm text-danger-700 dark:text-danger-300">{{ saveError() }}</p>
           }
           @if (saved()) {
-            <p class="text-sm text-emerald-700 dark:text-emerald-400">
+            <p class="text-sm text-success-700 dark:text-success-400">
               Cambios guardados correctamente.
             </p>
           }

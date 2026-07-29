@@ -160,7 +160,7 @@ export class DashboardComponent implements OnInit {
   saleStatusClass(status: string): string {
     const map: Record<string, string> = {
       CREATED: "bg-warning-500/10 text-warning-600",
-      CONFIRMED: "bg-emerald-500/10 text-emerald-600",
+      CONFIRMED: "bg-success-500/10 text-success-600",
       CANCELLED: "bg-danger-500/10 text-danger-500",
     };
 
@@ -171,7 +171,7 @@ export class DashboardComponent implements OnInit {
     const map: Record<string, string> = {
       CREATED: "bg-warning-500/10 text-warning-600",
       CONFIRMED: "bg-blue-500/10 text-blue-600",
-      PAID: "bg-emerald-500/10 text-emerald-600",
+      PAID: "bg-success-500/10 text-success-600",
     };
 
     return map[status] ?? "bg-slate-500/10 text-slate-500";

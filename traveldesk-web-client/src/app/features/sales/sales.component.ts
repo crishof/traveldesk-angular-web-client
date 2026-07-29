@@ -199,7 +199,7 @@ export class SalesComponent implements OnInit {
   statusClass(status: string): string {
     const map: Record<string, string> = {
       CREATED: "bg-warning-500/10 text-warning-500",
-      CONFIRMED: "bg-emerald-500/10 text-emerald-500",
+      CONFIRMED: "bg-success-500/10 text-success-500",
       CANCELLED: "bg-danger-500/10 text-danger-500",
     };
     return map[status] ?? "";
@@ -208,7 +208,7 @@ export class SalesComponent implements OnInit {
   statusDot(status: string): string {
     const map: Record<string, string> = {
       CREATED: "bg-warning-500",
-      CONFIRMED: "bg-emerald-500",
+      CONFIRMED: "bg-success-500",
       CANCELLED: "bg-danger-500",
     };
     return map[status] ?? "";
