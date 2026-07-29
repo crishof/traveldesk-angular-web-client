@@ -166,13 +166,13 @@
               adminForm.get(field.name)?.invalid &&
               adminForm.get(field.name)?.touched
             ) {
-              <span class="text-xs text-red-400">{{ field.errorMsg }}</span>
+              <span class="text-xs text-danger-400">{{ field.errorMsg }}</span>
             }
           </div>
         }
 
         @if (error()) {
-          <p class="text-xs text-red-400 bg-red-400/10 px-3 py-2 rounded-lg">
+          <p class="text-xs text-danger-400 bg-danger-400/10 px-3 py-2 rounded-lg">
             {{ error() }}
           </p>
         }

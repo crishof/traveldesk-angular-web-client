@@ -4,7 +4,7 @@
   </div>
 } @else if (error()) {
   <div class="p-6">
-    <p class="text-sm text-red-500 mb-3">{{ error() }}</p>
+    <p class="text-sm text-danger-500 mb-3">{{ error() }}</p>
     <button
       (click)="goBack()"
       class="px-3 py-2 rounded-lg text-sm font-semibold text-white bg-slate-700 hover:bg-slate-600"
@@ -36,7 +36,7 @@
           <button
             type="button"
             (click)="openDeleteSaleDialog()"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600 text-white hover:bg-red-500"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-danger-600 text-white hover:bg-danger-500"
           >
             Eliminar definitivamente
           </button>
@@ -44,7 +44,7 @@
           <button
             type="button"
             (click)="cancelSale()"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-danger-500/10 text-danger-500 hover:bg-danger-500/20"
           >
             Cancelar venta
           </button>
@@ -245,7 +245,7 @@
             </label>
 
             @if (hasAssignedPaymentsOrBookings()) {
-              <p class="text-xs text-amber-600 dark:text-amber-400">
+              <p class="text-xs text-warning-600 dark:text-warning-400">
                 No se puede cambiar la moneda mientras la venta tenga reservas o
                 pagos asignados.
               </p>
@@ -326,7 +326,7 @@
                         ? 'bg-emerald-500/10 text-emerald-600'
                         : booking.status === 'CONFIRMED'
                           ? 'bg-blue-500/10 text-blue-600'
-                          : 'bg-amber-500/10 text-amber-600'
+                          : 'bg-warning-500/10 text-warning-600'
                     "
                   >
                     {{ booking.status }}
@@ -342,7 +342,7 @@
                     <button
                       type="button"
                       (click)="openDeleteBookingDialog(booking.id)"
-                      class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                      class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-danger-500/10 text-danger-500 hover:bg-danger-500/20"
                     >
                       Eliminar
                     </button>
@@ -473,7 +473,7 @@
                   <button
                     type="button"
                     (click)="openDeletePaymentDialog(payment.id)"
-                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-danger-500/10 text-danger-500 hover:bg-danger-500/20"
                   >
                     Eliminar
                   </button>
@@ -521,7 +521,7 @@
               >
               <strong
                 [class]="
-                  pendingBalance() > 0 ? 'text-amber-500' : 'text-emerald-500'
+                  pendingBalance() > 0 ? 'text-warning-500' : 'text-emerald-500'
                 "
                 >{{ formatMoney(pendingBalance(), currency()) }}</strong
               >
@@ -554,7 +554,7 @@
         <div class="flex flex-col gap-4">
           <div>
             <p
-              class="text-xs font-semibold uppercase tracking-wider text-amber-500"
+              class="text-xs font-semibold uppercase tracking-wider text-warning-500"
             >
               Cancelación bloqueada
             </p>
@@ -569,7 +569,7 @@
           </div>
 
           <div
-            class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300"
+            class="rounded-xl border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-700 dark:border-warning-900/60 dark:bg-warning-950/30 dark:text-warning-300"
           >
             Eliminá primero todos los pagos y reservas asociadas desde esta
             pantalla y luego intenta cancelar nuevamente.
@@ -604,7 +604,7 @@
         <div class="flex flex-col gap-4">
           <div>
             <p
-              class="text-xs font-semibold uppercase tracking-wider text-red-500"
+              class="text-xs font-semibold uppercase tracking-wider text-danger-500"
             >
               Eliminar venta
             </p>
@@ -620,7 +620,7 @@
           </div>
 
           <div
-            class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+            class="rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-900/60 dark:bg-danger-950/30 dark:text-danger-300"
           >
             Se eliminarán los datos visibles de esta venta del listado actual.
           </div>
@@ -638,7 +638,7 @@
               type="button"
               (click)="confirmDeleteSale()"
               [disabled]="deletingSale()"
-              class="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-danger-600 text-white hover:bg-danger-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{
                 deletingSale() ? "Eliminando..." : "Eliminar definitivamente"
@@ -665,7 +665,7 @@
         <div class="flex flex-col gap-4">
           <div>
             <p
-              class="text-xs font-semibold uppercase tracking-wider text-red-500"
+              class="text-xs font-semibold uppercase tracking-wider text-danger-500"
             >
               Eliminar reserva
             </p>
@@ -682,7 +682,7 @@
 
           @if (bookingToDelete(); as booking) {
             <div
-              class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+              class="rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-900/60 dark:bg-danger-950/30 dark:text-danger-300"
             >
               <p class="font-semibold">{{ getBookingDescription(booking) }}</p>
               <p class="mt-1">
@@ -705,7 +705,7 @@
               type="button"
               (click)="confirmDeleteBooking()"
               [disabled]="deletingBooking()"
-              class="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-danger-600 text-white hover:bg-danger-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ deletingBooking() ? "Eliminando..." : "Eliminar reserva" }}
             </button>
@@ -730,7 +730,7 @@
         <div class="flex flex-col gap-4">
           <div>
             <p
-              class="text-xs font-semibold uppercase tracking-wider text-red-500"
+              class="text-xs font-semibold uppercase tracking-wider text-danger-500"
             >
               Eliminar pago
             </p>
@@ -747,7 +747,7 @@
 
           @if (paymentToDelete(); as payment) {
             <div
-              class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+              class="rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-900/60 dark:bg-danger-950/30 dark:text-danger-300"
             >
               <p class="font-semibold">{{ payment.description }}</p>
               <p class="mt-1">{{ formatPaymentLine(payment) }}</p>
@@ -767,7 +767,7 @@
               type="button"
               (click)="confirmDeletePayment()"
               [disabled]="deletingPayment()"
-              class="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-danger-600 text-white hover:bg-danger-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ deletingPayment() ? "Eliminando..." : "Eliminar pago" }}
             </button>
@@ -959,7 +959,7 @@
           }
 
           @if (bookingError()) {
-            <p class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+            <p class="rounded-xl border border-danger-200 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:border-danger-500/40 dark:bg-danger-500/10 dark:text-danger-300">
               {{ bookingError() }}
             </p>
           }
