@@ -78,7 +78,7 @@ Severidad: 🔴 Bloqueante · 🟠 Importante · 🟢 Deseable. "Dep." = depende
 | 13 | **Normalización visual**: unificar color de acento (hoy cyan/violet/emerald según pantalla), rojo de error (3 tonos), radios/espaciados; adoptar los tokens `brand-*` de Tailwind (hoy 0 usos); completar estados (hover/focus/disabled/loading) y responsive (8/19 plantillas sin breakpoints) | frontend | 🟠 | — |
 | 14 | **Completar pantallas placeholder** (`commission-account`) y limpiar ruta muerta | frontend | 🟢 | — |
 | 15 | **Tests de negocio y de aislamiento** (backend) + configurar runner y tests de guards/interceptor (frontend); Testcontainers para integración real | testing | 🟠 | 8 |
-| 16 | **CI/CD** (ejecutar tests + disparar deploys) | infra | 🟢 | 1,15 |
+| 16 | **CI** — 🟢 **Hecho** (workflows GitHub Actions en ambos repos): backend `./mvnw verify` (JDK 21) y frontend `npm run build:prod` (Node 20) en push a develop/main y PRs a main. **Deploys** siguen vía integración git de Railway/Vercel (no requieren tokens en el repo). | infra | 🟢 | — |
 | 17 | **Mover tokens JWT de `localStorage`** a cookie httpOnly (o mitigar XSS) — endurecimiento | seguridad | 🟢 | — |
 | 18 | **Facturación Verifactu**: modelo de factura, datos fiscales (NIF emisor/receptor), desglose IVA (¿REAV?), numeración por serie, encadenamiento/hash, QR, envío AEAT | backend | 🟢 (futuro) | 7,8,9 |
 
