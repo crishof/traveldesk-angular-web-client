@@ -12,7 +12,7 @@
     </div>
     <button
       (click)="showInvite.set(true)"
-      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-violet-500 to-purple-600 hover:opacity-90 transition-all shadow-lg shadow-violet-500/20"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:opacity-90 transition-all shadow-lg shadow-brand-500/20"
     >
       ✉ Invitar agente
     </button>
@@ -31,7 +31,7 @@
               class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
               [class]="
                 u.role === 'ADMIN'
-                  ? 'bg-gradient-to-br from-violet-500 to-purple-600'
+                  ? 'bg-gradient-to-br from-brand-500 to-brand-600'
                   : 'bg-gradient-to-br from-cyan-500 to-teal-600'
               "
             >
@@ -51,7 +51,7 @@
               class="text-xs font-semibold px-2 py-0.5 rounded-full"
               [class]="
                 u.role === 'ADMIN'
-                  ? 'bg-violet-500/10 text-violet-500'
+                  ? 'bg-brand-500/10 text-brand-500'
                   : 'bg-cyan-500/10 text-cyan-500'
               "
             >
@@ -161,7 +161,7 @@
         <button
           type="submit"
           [disabled]="inviteLoading()"
-          class="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-60"
+          class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-60"
         >
           {{ inviteLoading() ? "Generando..." : "✉ Generar invitación" }}
         </button>
