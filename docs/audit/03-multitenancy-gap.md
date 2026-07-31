@@ -139,12 +139,15 @@ Para contraste, todos los accesos de lectura/escritura del flujo principal sí f
 - **`SUPPORTS` → `REQUIRED`** en los métodos de lectura de los servicios afectados: `SET LOCAL` necesita el GUC en la misma transacción que la query; las lecturas no transaccionales devolvían 0 filas. Descubierto y corregido con un smoke test end-to-end (login → crear cliente → listar).
 - **Verificación:** como `traveldesk_app` las lecturas/escrituras quedan acotadas por agencia (WITH CHECK bloquea insertar en otra agencia; sin tenant → 0 filas; superusuario ve todo). Un run HTTP real devolvió solo los datos de la agencia del llamante. Suite H2 en verde con RLS inactivo.
 
+> **Nota de despliegue (commit `4b33df4`):** para no romper el deploy de Railway, la migración **`V5` DESHABILITA RLS** (`NO FORCE` + `DISABLE`) en las 6 tablas. Las políticas y el rol `traveldesk_app` se conservan (inertes). Motivo: si la app conecta con un usuario dueño-no-superusuario, `FORCE` ocultaría los datos con el GUC sin fijar. Por eso la activación ahora incluye **re-habilitar** RLS.
+
 **Checklist de ACTIVACIÓN (cuando se decida activar RLS):**
 1. Definir contraseña del rol: `ALTER ROLE traveldesk_app WITH PASSWORD '...';` (en dev/prod/Railway).
 2. Apuntar el datasource de la app a `traveldesk_app` (`SPRING_DATASOURCE_USERNAME/PASSWORD` en Railway; `POSTGRES_DEV_*` en local).
 3. Mantener **Flyway con un usuario admin** (`spring.flyway.user`/`spring.flyway.password` = postgres), porque `traveldesk_app` no tiene privilegios DDL.
-4. `RLS_ENABLED=true`.
-5. Verificar aislamiento por entidad (test A vs B) tras activar.
+4. **Re-habilitar RLS** en las 6 tablas (`ENABLE` + `FORCE ROW LEVEL SECURITY`) — las políticas ya existen.
+5. `RLS_ENABLED=true`.
+6. Verificar aislamiento por entidad (test A vs B) tras activar.
 
 Mientras tanto, el aislamiento por capa de aplicación con `agency_id`/`createdById` derivados del principal (0 endpoints inseguros, §4) es adecuado para el estado actual sin clientes reales; RLS queda como red de seguridad lista para activar.
 
